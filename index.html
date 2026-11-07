@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full w-full overflow-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quantum Trash: Interdimensional Debris Clearer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: radial-gradient(circle at center, #0f172a, #020617);
+            color: #f8fafc;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .canvas-container {
+            position: relative;
+            box-shadow: 0 0 35px rgba(139, 92, 246, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.2);
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glow-text-cyan {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+        .glow-text-purple {
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.8), 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+        .glow-text-red {
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+        /* Floating Coin Animation */
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.8); opacity: 0; }
+            20% { transform: translateY(-10px) scale(1.1); opacity: 1; }
+            80% { transform: translateY(-30px) scale(1); opacity: 1; }
+            100% { transform: translateY(-45px) scale(0.9); opacity: 0; }
+        }
+        .coin-popup {
+            animation: floatUp 1s ease-out forwards;
+            pointer-events: none;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8b5cf6;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="h-full w-full flex flex-col justify-between p-2 md:p-3 overflow-hidden">
+
+    <!-- Header & Brand -->
+    <header class="w-full max-w-7xl mx-auto flex items-center justify-between gap-2 p-3 md:p-3.5 glass-panel rounded-xl flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-xl md:text-2xl shadow-lg shadow-purple-500/30 flex-shrink-0">
+                <i class="fa-solid font-black fa-atom text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg md:text-2xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-indigo-400 leading-tight">
+                    QUANTUM TRASH
+                </h1>
+                <p class="text-xs md:text-sm text-slate-300 hidden sm:block">Interdimensional Debris Clearer • เกม Tetris สลับแรงโน้มถ่วงมิติ</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 md:gap-2.5">
+            <!-- Volume Control Slider -->
+            <div class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-slate-800/80 border border-slate-700">
+                <i id="audioIcon" class="fa-solid fa-volume-high text-amber-400 text-sm md:text-base"></i>
+                <input id="volumeSlider" type="range" min="0" max="1" step="0.05" value="0.85" class="w-14 sm:w-24 accent-pink-500 cursor-pointer h-2">
+            </div>
+            <!-- Restart Button -->
+            <button id="btnQuickRestart" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-400 border border-purple-500/30 text-xs md:text-sm font-semibold transition flex items-center gap-1.5" title="เริ่มเกมใหม่ทันที">
+                <i class="fa-solid fa-rotate-right"></i> <span class="hidden sm:inline">เริ่มใหม่</span>
+            </button>
+            <!-- Pause Button -->
+            <button id="btnPauseGame" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 text-xs md:text-sm font-semibold transition flex items-center gap-1.5">
+                <i id="pauseIcon" class="fa-solid fa-pause"></i> <span id="pauseText" class="hidden sm:inline">พักเกม</span>
+            </button>
+            <button id="btnLeaderboardModal" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 text-xs md:text-sm font-semibold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-trophy"></i> <span class="hidden md:inline">จัดอันดับ</span>
+            </button>
+            <button id="btnGddModal" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 text-xs md:text-sm font-semibold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-book-open"></i> <span class="hidden md:inline">แนวคิดและวิธีเล่น (GDD)</span>
+            </button>
+            <button id="btnFeedbackModal" class="px-3.5 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs md:text-sm font-semibold shadow-lg shadow-purple-600/30 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-comments"></i> <span class="hidden sm:inline">รีวิว</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4 items-center flex-1 my-1.5 md:my-2 overflow-hidden h-full min-h-0">
+        
+        <!-- Left Panel: Stats & Coins -->
+        <div class="lg:col-span-3 space-y-3 order-2 lg:order-1 flex flex-row lg:flex-col justify-between lg:justify-start gap-2 lg:gap-0">
+            <!-- Game Score Panel -->
+            <div class="glass-panel p-3.5 md:p-4.5 rounded-xl space-y-2.5 flex-1 lg:flex-none">
+                <h2 class="text-xs md:text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-chart-simple text-cyan-400"></i> สถิติการเคลียร์ขยะ
+                </h2>
+                <div class="flex lg:block justify-between items-baseline">
+                    <span class="text-xs md:text-sm text-slate-300 block">คะแนนสะสม (Score)</span>
+                    <span id="scoreDisplay" class="text-2xl md:text-4xl font-black text-cyan-400 glow-text-cyan">0</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-700/60">
+                    <div>
+                        <span class="text-xs md:text-sm text-slate-300 block">เลเวลมิติ (Level)</span>
+                        <span id="levelDisplay" class="text-lg md:text-2xl font-bold text-amber-300">1</span>
+                    </div>
+                    <div>
+                        <span class="text-xs md:text-sm text-slate-300 block">เคลียร์แถว</span>
+                        <span id="linesDisplay" class="text-lg md:text-2xl font-bold text-purple-300">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quantum Coins & Ability Panel -->
+            <div class="glass-panel p-3.5 md:p-4.5 rounded-xl space-y-2.5 flex-1 lg:flex-none">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs md:text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-coins text-amber-400"></i> เหรียญควอนตัม
+                    </span>
+                    <span id="coinDisplay" class="text-lg md:text-xl font-black text-amber-300">100</span>
+                </div>
+                <button id="btnSkillNuke" class="w-full p-2.5 md:p-3 rounded-xl bg-gradient-to-r from-red-600/90 to-amber-600/90 hover:from-red-500 hover:to-amber-500 text-white font-bold text-xs md:text-sm shadow-md transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-between">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-bomb text-base"></i> ระเบิดมิติ (Nuke)</span>
+                    <span class="text-xs bg-slate-950/70 px-2 py-0.5 rounded text-amber-300 font-bold">500 เหรียญ</span>
+                </button>
+                <p class="text-[11px] md:text-xs text-slate-300 hidden md:block leading-relaxed">ใช้ 500 เหรียญเพื่อระเบิดล้างบล็อก 3 แถวลาสดท้ายทันที</p>
+            </div>
+        </div>
+
+        <!-- Center Panel: Tetris Board Canvas (Larger Size) -->
+        <div class="lg:col-span-6 flex flex-col items-center justify-center order-1 lg:order-2 h-full min-h-0 relative">
+            <div class="canvas-container rounded-xl overflow-hidden border-2 border-indigo-500/50 bg-slate-950 p-2 relative max-h-full flex items-center justify-center">
+                <!-- Canvas (Larger grid width 340 x 680) -->
+                <canvas id="tetrisCanvas" width="340" height="680" class="rounded-lg block max-h-[58vh] sm:max-h-[64vh] md:max-h-[70vh] lg:max-h-[76vh] w-auto aspect-[1/2] object-contain"></canvas>
+
+                <!-- Floating Coin Popups Container -->
+                <div id="floatingCoinContainer" class="absolute inset-0 pointer-events-none overflow-hidden z-20"></div>
+
+                <!-- Overlay Screens (Start / Pause / Game Over) -->
+                <div id="overlayScreen" class="absolute inset-0 bg-slate-950/92 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center z-35 transition-all duration-300">
+                    <div id="startState" class="space-y-3.5 max-w-sm">
+                        <div class="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-3xl md:text-4xl text-white shadow-xl shadow-purple-500/40 animate-bounce">
+                            <i class="fa-solid fa-cubes-stacked"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white tracking-wide">QUANTUM TRASH</h2>
+                        <p class="text-xs md:text-sm text-slate-300 mx-auto leading-relaxed">
+                            เคลียร์ขยะมิติ สะสมเหรียญ ไต่เลเวลความยาก และใช้สกิลระเบิดมิติ!
+                        </p>
+                        <div class="space-y-1.5 text-left">
+                            <label class="text-xs font-bold text-slate-300">ชื่อผู้เล่น:</label>
+                            <input type="text" id="playerNameInput" value="PlayerOne" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-cyan-300 text-center font-bold focus:outline-none focus:border-cyan-400">
+                        </div>
+                        <button id="btnStartGame" class="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-sm md:text-base shadow-lg shadow-cyan-500/40 transform hover:scale-105 transition">
+                            <i class="fa-solid fa-play mr-2"></i> เริ่มเล่นเกม
+                        </button>
+                    </div>
+
+                    <!-- Pause State Overlay -->
+                    <div id="pauseState" class="hidden space-y-3.5">
+                        <div class="w-14 h-14 mx-auto rounded-full bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center text-2xl text-cyan-400">
+                            <i class="fa-solid fa-pause"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-black text-cyan-400 glow-text-cyan">PAUSED</h2>
+                        <p class="text-xs md:text-sm text-slate-300">พักเกมชั่วคราว กดปุ่มด้านล่างเพื่อเล่นต่อ</p>
+                        <button id="btnResumeGame" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-sm shadow-lg shadow-cyan-500/40 transform hover:scale-105 transition">
+                            <i class="fa-solid fa-play mr-1.5"></i> เล่นต่อ (Resume)
+                        </button>
+                    </div>
+
+                    <div id="gameOverState" class="hidden space-y-3.5 max-w-sm">
+                        <div class="w-14 h-14 mx-auto rounded-full bg-red-500/20 border-2 border-red-500 flex items-center justify-center text-2xl text-red-500">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-black text-red-400 glow-text-red">GAME OVER!</h2>
+                        <p class="text-xs md:text-sm text-slate-300">ขยะมิติทะลักล้นขอบสนาม!</p>
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 text-left space-y-1.5 text-xs md:text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">คะแนนสุทธิ:</span>
+                                <span id="finalScore" class="font-bold text-cyan-400 text-base">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-300">เคลียร์แถวขยะ:</span>
+                                <span id="finalLines" class="font-bold text-purple-400 text-base">0</span>
+                            </div>
+                            <div id="rankSavedNotice" class="text-xs text-amber-400 text-center pt-1 font-bold">
+                                🎉 บันทึกคะแนนลงกระดานผู้นำเรียบร้อย!
+                            </div>
+                        </div>
+                        <div class="flex gap-2.5">
+                            <button id="btnOpenLeaderboardFromOver" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs md:text-sm border border-amber-500/30 transition">
+                                <i class="fa-solid fa-trophy mr-1"></i> ดูอันดับ
+                            </button>
+                            <button id="btnRestartGame" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-xs md:text-sm shadow-lg shadow-purple-600/30 transition">
+                                <i class="fa-solid fa-rotate-right mr-1"></i> เล่นใหม่
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Controls -->
+            <div class="w-full max-w-[340px] grid grid-cols-4 gap-2 mt-2.5 lg:hidden flex-shrink-0">
+                <button id="btnMobileLeft" class="py-3.5 bg-slate-800 active:bg-indigo-600 rounded-xl text-lg text-white font-bold flex items-center justify-center border border-slate-700">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <button id="btnMobileRotate" class="py-3.5 bg-slate-800 active:bg-indigo-600 rounded-xl text-lg text-cyan-400 font-bold flex items-center justify-center border border-slate-700">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button id="btnMobileRight" class="py-3.5 bg-slate-800 active:bg-indigo-600 rounded-xl text-lg text-white font-bold flex items-center justify-center border border-slate-700">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <button id="btnMobileDrop" class="py-3.5 bg-purple-700 active:bg-purple-600 rounded-xl text-lg text-white font-bold flex items-center justify-center border border-purple-500">
+                    <i class="fa-solid fa-angles-down"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Panel: Next Piece & Controls Info -->
+        <div class="lg:col-span-3 space-y-3 order-3 hidden sm:flex lg:flex flex-row lg:flex-col justify-between lg:justify-start gap-2 lg:gap-0">
+            <!-- Next Piece -->
+            <div class="glass-panel p-3.5 rounded-xl flex flex-col items-center flex-1 lg:flex-none">
+                <h3 class="text-xs md:text-sm font-bold text-slate-300 uppercase tracking-wider mb-2.5 flex items-center gap-2 self-start">
+                    <i class="fa-solid fa-forward text-cyan-400"></i> ชิ้นส่วนถัดไป (Next)
+                </h3>
+                <canvas id="nextCanvas" width="110" height="110" class="bg-slate-950/70 rounded-xl border border-slate-800 w-24 h-24 md:w-28 md:h-28"></canvas>
+            </div>
+
+            <!-- Special Blocks Guide -->
+            <div class="glass-panel p-3.5 rounded-xl space-y-2 flex-1 lg:flex-none">
+                <h3 class="text-xs md:text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-cubes text-amber-400"></i> บล็อกพิเศษ & เหรียญ
+                </h3>
+                <ul class="text-xs md:text-sm space-y-1.5 text-slate-300">
+                    <li class="flex items-center gap-2">
+                        <span class="w-4 h-4 rounded bg-cyan-400 flex flex-shrink-0 items-center justify-center text-[10px]">⚡</span>
+                        <span><b>Laser:</b> เคลียร์แถว+คอลัมน์</span>
+                    </li>
+                    <li class="flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded bg-blue-300 flex flex-shrink-0 items-center justify-center text-[10px]">❄️</span>
+                        <span><b>Freeze:</b> ชะลอความเร็ว 5วิ</span>
+                    </li>
+                    <li class="flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded bg-amber-400 flex flex-shrink-0 items-center justify-center text-[10px]">💣</span>
+                        <span><b>Bomb:</b> ระเบิด 3x3 ช่อง</span>
+                    </li>
+                    <li class="flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded bg-emerald-400 flex flex-shrink-0 items-center justify-center text-[10px]">⚓</span>
+                        <span><b>Weight:</b> บล็อกเจาะทะลุ</span>
+                    </li>
+                    <li class="flex items-center gap-1.5 text-amber-300 pt-0.5">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span><b>เคลียร์แถวปกติ:</b> ได้รับ <b>+5 เหรียญ</b></span>
+                    </li>
+                    <li class="flex items-center gap-1.5 text-amber-300">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span><b>เคลียร์บล็อกพิเศษ:</b> ได้รับ <b>+2 เหรียญ</b></span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Controls Info -->
+            <div class="glass-panel p-3.5 rounded-xl space-y-1 hidden lg:block text-xs text-slate-300">
+                <h3 class="font-bold text-slate-200 uppercase tracking-wider mb-1.5">การควบคุม (Keyboard)</h3>
+                <div class="flex justify-between"><span>เลื่อนซ้าย / ขวา</span> <span class="font-mono text-cyan-300">← / →</span></div>
+                <div class="flex justify-between"><span>หมุนชิ้นส่วน</span> <span class="font-mono text-cyan-300">↑ หรือ Z</span></div>
+                <div class="flex justify-between"><span>เร่งความเร็วตก</span> <span class="font-mono text-cyan-300">↓</span></div>
+                <div class="flex justify-between"><span>ทิ้งบล็อกทันที</span> <span class="font-mono text-cyan-300">Spacebar</span></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-7xl mx-auto text-center text-xs text-slate-400 py-1 border-t border-slate-800/80 flex-shrink-0">
+        <p>© 2026 Quantum Trash Project • พัฒนาสำหรับโปรเจกต์เว็บแอปพลิเคชันเชิงนวัตกรรม</p>
+    </footer>
+
+    <!-- UI Alert Toast -->
+    <div id="toastNotification" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 px-5 py-2.5 rounded-xl text-xs md:text-sm font-extrabold shadow-xl transition-all duration-300 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+        <i class="fa-solid fa-circle-info"></i> <span id="toastText">การแจ้งเตือน</span>
+    </div>
+
+    <!-- MODAL 1: Leaderboard (ตารางจัดอันดับผู้เล่น) -->
+    <div id="modalLeaderboard" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-lg max-h-[85vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950/70">
+                <h3 class="text-lg md:text-xl font-extrabold text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-trophy"></i> ตารางจัดอันดับผู้เล่น (Leaderboard)
+                </h3>
+                <button id="btnCloseLeaderboard" class="text-slate-400 hover:text-white text-xl p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-4 overflow-y-auto space-y-3 text-xs md:text-sm text-slate-300 flex-1">
+                <div class="flex justify-between items-center bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                    <span class="text-slate-300 text-xs md:text-sm">จัดอันดับตามคะแนนสูงสุด (High Score)</span>
+                    <button id="btnClearLeaderboard" class="text-xs text-red-400 hover:text-red-300 px-2.5 py-1.5 bg-red-950/40 rounded-lg border border-red-900/50 transition flex items-center gap-1">
+                        <i class="fa-solid fa-trash-can"></i> ล้างประวัติอันดับ
+                    </button>
+                </div>
+                <div id="leaderboardList" class="space-y-2"></div>
+            </div>
+            <div class="p-3.5 border-t border-slate-800 bg-slate-950/70 flex justify-end">
+                <button id="btnCloseLeaderboard2" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs md:text-sm font-semibold">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Game Design Document & How To Play (GDD) -->
+    <div id="modalGdd" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-3xl max-h-[88vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+            <!-- GDD Modal Tabs Header -->
+            <div class="p-3.5 border-b border-slate-800 flex justify-between items-center bg-slate-950/70 flex-wrap gap-2">
+                <div class="flex gap-1.5 sm:gap-2">
+                    <button id="gddTabBtnConcept" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-cyan-600 text-white transition">
+                        <i class="fa-solid fa-book-open mr-1.5"></i> แนวคิดและเรื่องราว
+                    </button>
+                    <button id="gddTabBtnRules" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                        <i class="fa-solid fa-gamepad mr-1.5"></i> วิธีการเล่น & ไต่เลเวล
+                    </button>
+                </div>
+                <button id="btnCloseGdd" class="text-slate-400 hover:text-white text-xl p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- GDD Tab 1: Concept & Lore -->
+            <div id="gddSectionConcept" class="p-6 overflow-y-auto space-y-5 text-xs md:text-sm text-slate-300">
+                <section class="space-y-2">
+                    <h4 class="text-sm md:text-base font-bold text-cyan-400 flex items-center gap-2">
+                        <i class="fa-solid fa-atom"></i> ชื่อเกมและแนวคิด (Game Title & Concept)
+                    </h4>
+                    <p class="pl-3 border-l-2 border-cyan-500 leading-relaxed">
+                        <strong class="text-white text-base">Quantum Trash: Interdimensional Debris Clearer</strong><br>
+                        (ชื่อภาษาไทย: <em>"พนักงานเทศบาลข้ามมิติ: เรียงขยะควอนตัม"</em>) เกมแนว Puzzle Tetris ที่ผสมผสานเทคโนโลยีข้ามมิติและจังหวะดนตรี Retro 8-bit
+                    </p>
+                </section>
+
+                <section class="space-y-2">
+                    <h4 class="text-sm md:text-base font-bold text-pink-400 flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark"></i> เรื่องราวของเกม (Theme & Lore)
+                    </h4>
+                    <p class="pl-3 border-l-2 border-pink-500 leading-relaxed">
+                        ในยุคอนาคตปี 3042 อารยธรรมในจักรวาลทิ้งขยะมิติสะสมไว้ในรอยต่อเวลา ผู้เล่นรับบทเป็นเจ้าหน้าที่จัดเก็บขยะควอนตัมมือหนึ่ง มีหน้าที่เรียงบล็อกขยะเพื่อบีบอัดสลายสสาร ป้องกันไม่ให้ขยะล้นทะลักมิติ
+                    </p>
+                </section>
+            </div>
+
+            <!-- GDD Tab 2: How to Play & Leveling System -->
+            <div id="gddSectionRules" class="hidden p-6 overflow-y-auto space-y-5 text-xs md:text-sm text-slate-300">
+                <section class="space-y-2.5">
+                    <h4 class="text-sm md:text-base font-bold text-amber-400 flex items-center gap-2">
+                        <i class="fa-solid fa-book-skull"></i> วิธีการเล่นเกมเบื้องต้น (How to Play)
+                    </h4>
+                    <ul class="pl-4 border-l-2 border-amber-500 space-y-2 list-disc list-inside leading-relaxed">
+                        <li><b>ควบคุมชิ้นส่วน:</b> ใช้ปุ่มลูกศร ซ้าย/ขวา เพื่อเลื่อนตำแหน่ง, ลูกศรขึ้นหรือปุ่ม Z เพื่อหมุน, และลูกศรลงเพื่อเร่งความเร็ว</li>
+                        <li><b>การเคลียร์แถวขยะ:</b> เมื่อผู้เล่นเรียงบล็อกเต็มแถวแนวนอนในกระดาน แถวขยะนั้นจะถูกทำลายลงพร้อมมอบคะแนน</li>
+                        <li><b>บล็อกพิเศษช่วยเหลือ:</b> มีโอกาสสุ่มเจอชิ้นส่วนพิเศษ เช่น <i>Bomb</i> (ระเบิด 3x3), <i>Laser</i> (ล้างแถว+คอลัมน์), <i>Freeze</i> (ชะลอเวลา), และ <i>Weight</i> (เจาะทะลุ)</li>
+                    </ul>
+                </section>
+
+                <section class="space-y-2.5">
+                    <h4 class="text-sm md:text-base font-bold text-purple-400 flex items-center gap-2">
+                        <i class="fa-solid fa-stairs"></i> ระบบไต่เลเวลมิติ (Leveling & Difficulty Progression)
+                    </h4>
+                    <div class="pl-4 border-l-2 border-purple-500 space-y-2 leading-relaxed">
+                        <p>
+                            ทุกๆ ครั้งที่ผู้เล่นสามารถเคลียร์แถวขยะสะสมครบทุกๆ <b>5 แถว</b> เลเวลของมิติ (Level) จะเพิ่มขึ้นอัตโนมัติ (+1 เลเวล)
+                        </p>
+                        <p>
+                            <b>ผลลัพธ์เมื่อเลเวลเพิ่มขึ้น:</b> ความเร็วในการตกลงมาของบล็อกขยะจะเร็วขึ้นเรื่อยๆ ทำให้ความท้าทายและคะแนนโบนัสที่ได้รับต่อแถวเพิ่มสูงขึ้นแบบทวีคูณ ช่วยให้ผู้เล่นสามารถไต่ลำดับในกระดานผู้นำได้สูงขึ้น
+                        </p>
+                    </div>
+                </section>
+
+                <section class="space-y-2.5">
+                    <h4 class="text-sm md:text-base font-bold text-emerald-400 flex items-center gap-2">
+                        <i class="fa-solid fa-coins"></i> ระบบเหรียญควอนตัม (Quantum Coins System)
+                    </h4>
+                    <ul class="pl-4 border-l-2 border-emerald-500 space-y-2 list-disc list-inside leading-relaxed">
+                        <li><b>เหรียญเริ่มต้น:</b> ผู้เล่นเริ่มต้นเกมด้วย <b>100 เหรียญ</b></li>
+                        <li><b>รับเหรียญจากการพังบล็อก:</b> เมื่อบล็อกถูกทำลาย ไม่จำเป็นต้องเต็มทั้งแถว หากทำลายบล็อกสำเร็จ จะได้รับเหรียญเด้งแสดงบนจอทันที:
+                            <ul class="pl-5 list-circle text-slate-300 space-y-1 mt-1">
+                                <li>✨ เคลียร์แถวปกติ: ได้รับ <b>+5 เหรียญ</b></li>
+                                <li>✨ ใช้บล็อกพิเศษช่วยเหลือ: ได้รับ <b>+2 เหรียญ</b></li>
+                            </ul>
+                        </li>
+                        <li><b>สกิลระเบิดมิติ (Nuke):</b> ใช้ <b>500 เหรียญ</b> เพื่อกดใช้สกิลกวาดล้าง 3 แถวล่างสุดของสนามทันที</li>
+                    </ul>
+                </section>
+            </div>
+
+            <div class="p-3.5 border-t border-slate-800 bg-slate-950/70 flex justify-end">
+                <button id="btnCloseGdd2" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs md:text-sm font-semibold">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Feedback Form & Community Reviews -->
+    <div id="modalFeedback" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl max-h-[85vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-3.5 border-b border-slate-800 flex justify-between items-center bg-slate-950/70 flex-wrap gap-2">
+                <div class="flex gap-1.5 sm:gap-2">
+                    <button id="tabBtnForm" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-pink-600 text-white transition">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> เขียนรีวิว
+                    </button>
+                    <button id="tabBtnCommunity" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                        <i class="fa-solid fa-users mr-1"></i> ความเห็น (<span id="reviewCount">3</span>)
+                    </button>
+                    <button id="tabBtnTrash" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-slate-800 text-red-400 hover:bg-slate-700 transition flex items-center gap-1">
+                        <i class="fa-solid fa-trash-can"></i> ถังขยะ (<span id="trashCount">0</span>)
+                    </button>
+                </div>
+                <button id="btnCloseFeedback" class="text-slate-400 hover:text-white text-xl p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Tab 1: Form -->
+            <form id="feedbackForm" class="p-6 overflow-y-auto space-y-4 text-xs md:text-sm text-slate-300">
+                <div class="space-y-1.5">
+                    <label class="block font-bold text-slate-200" for="reviewerName">ชื่อผู้รีวิว</label>
+                    <input type="text" id="reviewerName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-purple-500 placeholder-slate-600" placeholder="เช่น SpaceCadet99">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block font-bold text-slate-200">ความพึงพอใจ (คะแนน 1-5 ดาว)</label>
+                    <div class="flex gap-4 items-center justify-center py-2.5 bg-slate-950/50 rounded-xl border border-slate-800">
+                        <div id="ratingStars" class="flex gap-3 text-2xl md:text-3xl text-slate-600 cursor-pointer">
+                            <i class="fa-solid fa-star hover:text-amber-400 transition" data-rating="1"></i>
+                            <i class="fa-solid fa-star hover:text-amber-400 transition" data-rating="2"></i>
+                            <i class="fa-solid fa-star hover:text-amber-400 transition" data-rating="3"></i>
+                            <i class="fa-solid fa-star hover:text-amber-400 transition" data-rating="4"></i>
+                            <i class="fa-solid fa-star hover:text-amber-400 transition" data-rating="5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block font-bold text-slate-200" for="qLikes">สิ่งที่คุณชอบมากที่สุดในเกม</label>
+                    <textarea id="qLikes" rows="2" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-purple-500 placeholder-slate-600" placeholder="ระบุสิ่งที่ชอบ..."></textarea>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block font-bold text-slate-200" for="qImprovements">ข้อเสนอแนะเพิ่มเติม</label>
+                    <textarea id="qImprovements" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-purple-500 placeholder-slate-600" placeholder="คำแนะนำ..."></textarea>
+                </div>
+
+                <div class="pt-1">
+                    <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold text-sm md:text-base shadow-lg shadow-pink-500/30 transition">
+                        ส่งรีวิว
+                    </button>
+                </div>
+            </form>
+
+            <!-- Tab 2: Reviews -->
+            <div id="communityView" class="hidden p-6 overflow-y-auto space-y-3.5 text-xs md:text-sm text-slate-300">
+                <div class="bg-slate-950/85 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs text-slate-400 block">คะแนนเฉลี่ย</span>
+                        <div class="flex items-center gap-2">
+                            <span id="avgRatingNum" class="text-2xl font-black text-amber-400">4.7</span>
+                            <div id="avgStars" class="text-amber-400 text-xs">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400">ผู้รีวิวทั้งหมด</span>
+                        <div id="totalReviewsCount" class="text-lg font-bold text-purple-400">3 คน</div>
+                    </div>
+                </div>
+                <div id="reviewsList" class="space-y-3"></div>
+            </div>
+
+            <!-- Tab 3: Trash -->
+            <div id="trashView" class="hidden p-6 overflow-y-auto space-y-3.5 text-xs md:text-sm text-slate-300">
+                <div class="bg-slate-950/85 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <span class="text-xs md:text-sm font-bold text-red-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-trash-can"></i> ถังขยะรีวิว
+                        </span>
+                        <p class="text-xs text-slate-400">สามารถกู้คืนหรือลบถาวรได้</p>
+                    </div>
+                    <button id="btnClearTrashAll" class="px-3 py-1.5 rounded-lg bg-red-900/60 hover:bg-red-800 text-red-200 text-xs border border-red-700/50 transition flex items-center gap-1">
+                        <i class="fa-solid fa-dumpster"></i> ลบถาวรทั้งหมด
+                    </button>
+                </div>
+                <div id="trashList" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Game, Coins & Leaderboard Logic -->
+    <script>
+        document.body.addEventListener('touchmove', function(e) {
+            if (!e.target.closest('#modalGdd') && !e.target.closest('#modalFeedback') && !e.target.closest('#modalLeaderboard')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            const toastText = document.getElementById('toastText');
+            toastText.innerText = message;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2500);
+        }
+
+        function showFloatingCoin(amount, xPx = 170, yPx = 340) {
+            const container = document.getElementById('floatingCoinContainer');
+            const popup = document.createElement('div');
+            popup.className = "absolute text-amber-300 font-black text-base md:text-lg glow-text-cyan coin-popup flex items-center gap-1";
+            popup.style.left = `${xPx - 30}px`;
+            popup.style.top = `${yPx - 20}px`;
+            popup.innerHTML = `<i class="fa-solid fa-coins text-amber-400"></i> +${amount}`;
+            container.appendChild(popup);
+            setTimeout(() => {
+                popup.remove();
+            }, 1000);
+        }
+
+        // --- Leaderboard System ---
+        const DEFAULT_LEADERBOARD = [
+            { name: "QuantumKing", score: 4850, lines: 38, date: "06/03/2026" },
+            { name: "DebrisCleanerX", score: 3200, lines: 25, date: "05/03/2026" },
+            { name: "SpaceCadet99", score: 2150, lines: 17, date: "04/03/2026" }
+        ];
+
+        let leaderboardData = loadLeaderboard();
+
+        function loadLeaderboard() {
+            try {
+                const stored = localStorage.getItem('quantum_trash_leaderboard');
+                if (stored) return JSON.parse(stored);
+            } catch (e) {}
+            return DEFAULT_LEADERBOARD;
+        }
+
+        function saveLeaderboard() {
+            try {
+                localStorage.setItem('quantum_trash_leaderboard', JSON.stringify(leaderboardData));
+            } catch (e) {}
+        }
+
+        function addScoreToLeaderboard(playerName, finalScore, finalLines) {
+            const cleanName = (playerName || "Anonymous").trim();
+            const today = new Date().toLocaleDateString('th-TH');
+            
+            leaderboardData.push({
+                name: cleanName,
+                score: finalScore,
+                lines: finalLines,
+                date: today
+            });
+
+            leaderboardData.sort((a, b) => b.score - a.score);
+            if (leaderboardData.length > 15) {
+                leaderboardData = leaderboardData.slice(0, 15);
+            }
+            saveLeaderboard();
+        }
+
+        function renderLeaderboard() {
+            const listContainer = document.getElementById('leaderboardList');
+            listContainer.innerHTML = '';
+
+            leaderboardData.forEach((entry, index) => {
+                const rank = index + 1;
+                let rankBadgeColor = "bg-slate-800 text-slate-300 border-slate-700";
+                let rankIcon = `<span class="font-bold text-xs">${rank}</span>`;
+
+                if (rank === 1) {
+                    rankBadgeColor = "bg-amber-500/20 text-amber-300 border-amber-500/50";
+                    rankIcon = `<i class="fa-solid fa-crown text-amber-400"></i>`;
+                } else if (rank === 2) {
+                    rankBadgeColor = "bg-slate-300/20 text-slate-200 border-slate-300/50";
+                    rankIcon = `<i class="fa-solid fa-medal text-slate-300"></i>`;
+                } else if (rank === 3) {
+                    rankBadgeColor = "bg-amber-700/20 text-amber-500 border-amber-700/50";
+                    rankIcon = `<i class="fa-solid fa-award text-amber-600"></i>`;
+                }
+
+                const row = document.createElement('div');
+                row.className = `flex items-center justify-between p-3 rounded-xl border bg-slate-950/70 ${rankBadgeColor}`;
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-xl flex items-center justify-center border bg-slate-900 ${rankBadgeColor}">
+                            ${rankIcon}
+                        </div>
+                        <div>
+                            <span class="font-bold text-white text-sm md:text-base block">${entry.name}</span>
+                            <span class="text-xs text-slate-400">เคลียร์: ${entry.lines} แถว • ${entry.date}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-base md:text-lg font-black text-cyan-400 glow-text-cyan">${entry.score.toLocaleString()}</span>
+                        <span class="text-[10px] text-slate-400 block uppercase">Pts</span>
+                    </div>
+                `;
+                listContainer.appendChild(row);
+            });
+
+            if (leaderboardData.length === 0) {
+                listContainer.innerHTML = `<div class="text-center py-6 text-xs text-slate-500">ยังไม่มีประวัติการจัดอันดับ</div>`;
+            }
+        }
+
+        const modalLeaderboard = document.getElementById('modalLeaderboard');
+        document.getElementById('btnLeaderboardModal').addEventListener('click', () => {
+            renderLeaderboard();
+            modalLeaderboard.classList.remove('hidden');
+        });
+        document.getElementById('btnCloseLeaderboard').addEventListener('click', () => modalLeaderboard.classList.add('hidden'));
+        document.getElementById('btnCloseLeaderboard2').addEventListener('click', () => modalLeaderboard.classList.add('hidden'));
+        document.getElementById('btnOpenLeaderboardFromOver').addEventListener('click', () => {
+            document.getElementById('gameOverState').classList.add('hidden');
+            renderLeaderboard();
+            modalLeaderboard.classList.remove('hidden');
+        });
+        document.getElementById('btnClearLeaderboard').addEventListener('click', () => {
+            leaderboardData = [];
+            saveLeaderboard();
+            renderLeaderboard();
+            showToast('ล้างประวัติกระดานผู้นำเรียบร้อย');
+        });
+
+
+        // --- Web Audio Synthesizer Engine ---
+        class AudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.bgmTimer = null;
+                this.volume = 0.85;
+                this.step = 0;
+                this.currentTrackIndex = 0;
+                this.trackStepCount = 0;
+                this.beatsPerTrackChange = 32;
+
+                this.trackA = [
+                    523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 523.25, 659.25,
+                    587.33, 698.46, 880.00, 1174.66, 880.00, 698.46, 587.33, 698.46,
+                    659.25, 783.99, 987.77, 1318.51, 987.77, 783.99, 659.25, 783.99,
+                    698.46, 880.00, 1046.50, 1396.91, 1046.50, 880.00, 783.99, 659.25
+                ];
+                this.trackB = [
+                    440.00, 554.37, 659.25, 880.00, 659.25, 554.37, 440.00, 554.37,
+                    392.00, 493.88, 587.33, 783.99, 587.33, 493.88, 392.00, 493.88,
+                    349.23, 440.00, 523.25, 698.46, 523.25, 440.00, 349.23, 440.00,
+                    329.63, 415.30, 493.88, 659.25, 493.88, 415.30, 329.63, 415.30
+                ];
+                this.tracks = [this.trackA, this.trackB];
+                this.basslines = [
+                    [130.81, 130.81, 164.81, 130.81, 146.83, 146.83, 174.61, 146.83],
+                    [110.00, 110.00, 138.59, 110.00, 98.00, 98.00, 123.47, 98.00]
+                ];
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playTone(freq, type, duration, startVol = 0.1) {
+                if (!this.ctx || this.volume <= 0) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    const finalVol = startVol * this.volume;
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(finalVol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch (e) {}
+            }
+
+            startBGM() {
+                this.init();
+                if (this.bgmTimer) clearInterval(this.bgmTimer);
+                this.step = 0;
+                this.trackStepCount = 0;
+                this.currentTrackIndex = 0;
+
+                this.bgmTimer = setInterval(() => {
+                    if (this.volume <= 0) return;
+                    const activeMelody = this.tracks[this.currentTrackIndex];
+                    const activeBass = this.basslines[this.currentTrackIndex];
+
+                    const note = activeMelody[this.step % activeMelody.length];
+                    const bassNote = activeBass[Math.floor(this.step / 2) % activeBass.length];
+                    
+                    this.playTone(note, 'sawtooth', 0.1, 0.05);
+                    this.playTone(bassNote, 'triangle', 0.15, 0.09);
+                    
+                    if (this.step % 4 === 0) {
+                        this.playTone(100, 'square', 0.08, 0.12);
+                    }
+
+                    this.step++;
+                    this.trackStepCount++;
+                    if (this.trackStepCount >= this.beatsPerTrackChange) {
+                        this.trackStepCount = 0;
+                        this.currentTrackIndex = (this.currentTrackIndex + 1) % this.tracks.length;
+                    }
+                }, 125);
+            }
+
+            stopBGM() {
+                if (this.bgmTimer) {
+                    clearInterval(this.bgmTimer);
+                    this.bgmTimer = null;
+                }
+            }
+
+            rotate() { this.playTone(587.33, 'sine', 0.07, 0.08); }
+            move() { this.playTone(330, 'triangle', 0.04, 0.05); }
+            land() {
+                this.playTone(200, 'sawtooth', 0.1, 0.2);
+                setTimeout(() => this.playTone(110, 'triangle', 0.15, 0.25), 25);
+            }
+            laserSound() {
+                this.playTone(880, 'sawtooth', 0.2, 0.2);
+                setTimeout(() => this.playTone(440, 'sawtooth', 0.2, 0.15), 50);
+            }
+            freezeSound() {
+                this.playTone(1200, 'sine', 0.25, 0.15);
+                setTimeout(() => this.playTone(1500, 'sine', 0.3, 0.15), 80);
+            }
+            clear() { 
+                this.playTone(659.25, 'sine', 0.1, 0.12); 
+                setTimeout(() => this.playTone(783.99, 'sine', 0.12, 0.12), 60);
+                setTimeout(() => this.playTone(1046.50, 'sine', 0.18, 0.15), 120);
+            }
+            victory() {
+                const notes = [659.25, 783.99, 1046.50, 1318.51, 1046.50, 1318.51];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 'triangle', 0.22, 0.2), idx * 85);
+                });
+            }
+            bomb() { this.playTone(90, 'sawtooth', 0.35, 0.3); }
+            coinSound() { this.playTone(1320, 'sine', 0.12, 0.18); }
+            gameOver() {
+                this.stopBGM();
+                this.playTone(350, 'sawtooth', 0.2, 0.15);
+                setTimeout(() => this.playTone(220, 'sawtooth', 0.3, 0.18), 180);
+                setTimeout(() => this.playTone(110, 'sawtooth', 0.5, 0.25), 360);
+            }
+        }
+
+        const audio = new AudioEngine();
+
+        const volumeSlider = document.getElementById('volumeSlider');
+        const audioIcon = document.getElementById('audioIcon');
+
+        volumeSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            audio.volume = val;
+            if (val === 0) {
+                audioIcon.className = 'fa-solid fa-volume-xmark text-slate-500 text-sm md:text-base';
+            } else if (val < 0.5) {
+                audioIcon.className = 'fa-solid fa-volume-low text-amber-400 text-sm md:text-base';
+            } else {
+                audioIcon.className = 'fa-solid fa-volume-high text-amber-400 text-sm md:text-base';
+            }
+        });
+
+        // --- Tetris Game State (Larger Grid: 10 cols x 20 rows, 34px block size) ---
+        const COLS = 10;
+        const ROWS = 20;
+        const BLOCK_SIZE = 34;
+
+        const SHAPES = {
+            'I': { matrix: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], color: '#06b6d4' },
+            'J': { matrix: [[1,0,0],[1,1,1],[0,0,0]], color: '#3b82f6' },
+            'L': { matrix: [[0,0,1],[1,1,1],[0,0,0]], color: '#f97316' },
+            'O': { matrix: [[1,1],[1,1]], color: '#eab308' },
+            'S': { matrix: [[0,1,1],[1,1,0],[0,0,0]], color: '#22c55e' },
+            'T': { matrix: [[0,1,0],[1,1,1],[0,0,0]], color: '#a855f7' },
+            'Z': { matrix: [[1,1,0],[0,1,1],[0,0,0]], color: '#ef4444' },
+            'BOMB': { matrix: [[1]], color: '#f59e0b', type: 'BOMB' },
+            'WEIGHT': { matrix: [[1,1],[1,1]], color: '#10b981', type: 'WEIGHT' },
+            'LASER': { matrix: [[1]], color: '#38bdf8', type: 'LASER' },
+            'FREEZE': { matrix: [[1]], color: '#93c5fd', type: 'FREEZE' }
+        };
+
+        const SHAPE_KEYS = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
+        const SPECIAL_KEYS = ['BOMB', 'WEIGHT', 'LASER', 'FREEZE'];
+
+        const canvas = document.getElementById('tetrisCanvas');
+        const ctx = canvas.getContext('2d');
+        const nextCanvas = document.getElementById('nextCanvas');
+        const nextCtx = nextCanvas.getContext('2d');
+
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const levelDisplay = document.getElementById('levelDisplay');
+        const linesDisplay = document.getElementById('linesDisplay');
+        const coinDisplay = document.getElementById('coinDisplay');
+        
+        const overlayScreen = document.getElementById('overlayScreen');
+        const startState = document.getElementById('startState');
+        const pauseState = document.getElementById('pauseState');
+        const gameOverState = document.getElementById('gameOverState');
+        
+        const btnStartGame = document.getElementById('btnStartGame');
+        const btnRestartGame = document.getElementById('btnRestartGame');
+        const btnQuickRestart = document.getElementById('btnQuickRestart');
+        const btnPauseGame = document.getElementById('btnPauseGame');
+        const btnResumeGame = document.getElementById('btnResumeGame');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const pauseText = document.getElementById('pauseText');
+        const btnSkillNuke = document.getElementById('btnSkillNuke');
+        const playerNameInput = document.getElementById('playerNameInput');
+
+        let board = createBoard();
+        let score = 0;
+        let lines = 0;
+        let level = 1;
+        let coins = 100; // เริ่มต้น 100 เหรียญ
+        let gameOver = false;
+        let isPlaying = false;
+        let isPaused = false;
+        let freezeTimer = 0;
+
+        let piece = null;
+        let nextPiece = null;
+        let dropCounter = 0;
+        let dropInterval = 900;
+        let lastTime = 0;
+
+        function createBoard() {
+            return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+        }
+
+        function addCoins(amount) {
+            coins += amount;
+            coinDisplay.innerText = coins;
+            audio.coinSound();
+            showFloatingCoin(amount);
+        }
+
+        function getRandomPiece() {
+            const isSpecial = Math.random() < 0.35;
+            const randKey = isSpecial 
+                ? SPECIAL_KEYS[Math.floor(Math.random() * SPECIAL_KEYS.length)]
+                : SHAPE_KEYS[Math.floor(Math.random() * SHAPE_KEYS.length)];
+
+            const shape = SHAPES[randKey];
+            return {
+                matrix: shape.matrix.map(row => [...row]),
+                color: shape.color,
+                type: shape.type || 'NORMAL',
+                x: Math.floor(COLS / 2) - Math.ceil(shape.matrix[0].length / 2),
+                y: 0
+            };
+        }
+
+        function drawCell(context, x, y, color, isSpecial = null, size = BLOCK_SIZE) {
+            const px = x * size;
+            const py = y * size;
+
+            const grad = context.createLinearGradient(px, py, px + size, py + size);
+            grad.addColorStop(0, color);
+            grad.addColorStop(1, adjustColor(color, -40));
+            context.fillStyle = grad;
+            context.fillRect(px, py, size, size);
+
+            context.fillStyle = 'rgba(255, 255, 255, 0.45)';
+            context.beginPath();
+            context.moveTo(px, py);
+            context.lineTo(px + size, py);
+            context.lineTo(px + size - 3, py + 3);
+            context.lineTo(px + 3, py + 3);
+            context.lineTo(px + 3, py + size - 3);
+            context.lineTo(px, py + size);
+            context.closePath();
+            context.fill();
+
+            context.fillStyle = 'rgba(0, 0, 0, 0.45)';
+            context.beginPath();
+            context.moveTo(px + size, py);
+            context.lineTo(px + size, py + size);
+            context.lineTo(px, py + size);
+            context.lineTo(px + 3, py + size - 3);
+            context.lineTo(px + size - 3, py + size - 3);
+            context.lineTo(px + size - 3, py + 3);
+            context.closePath();
+            context.fill();
+
+            if (isSpecial) {
+                context.fillStyle = '#ffffff';
+                context.font = `bold ${Math.floor(size * 0.55)}px font-awesome, sans-serif`;
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+
+                let icon = '';
+                if (isSpecial === 'BOMB') icon = '💣';
+                else if (isSpecial === 'WEIGHT') icon = '⚓';
+                else if (isSpecial === 'LASER') icon = '⚡';
+                else if (isSpecial === 'FREEZE') icon = '❄️';
+
+                context.fillText(icon, px + size / 2, py + size / 2);
+            }
+        }
+
+        function adjustColor(hex, amt) {
+            let usePound = false;
+            if (hex[0] == "#") {
+                hex = hex.slice(1);
+                usePound = true;
+            }
+            let num = parseInt(hex, 16);
+            let r = (num >> 16) + amt;
+            if (r > 255) r = 255; else if (r < 0) r = 0;
+            let b = ((num >> 8) & 0x00FF) + amt;
+            if (b > 255) b = 255; else if (b < 0) b = 0;
+            let g = (num & 0x0000FF) + amt;
+            if (g > 255) g = 255; else if (g < 0) g = 0;
+            return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
+        }
+
+        function draw() {
+            ctx.fillStyle = '#020617';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 0.6;
+            for (let r = 0; r <= ROWS; r++) {
+                ctx.beginPath();
+                ctx.moveTo(0, r * BLOCK_SIZE);
+                ctx.lineTo(canvas.width, r * BLOCK_SIZE);
+                ctx.stroke();
+            }
+            for (let c = 0; c <= COLS; c++) {
+                ctx.beginPath();
+                ctx.moveTo(c * BLOCK_SIZE, 0);
+                ctx.lineTo(c * BLOCK_SIZE, canvas.height);
+                ctx.stroke();
+            }
+
+            board.forEach((row, y) => {
+                row.forEach((val, x) => {
+                    if (val !== 0) {
+                        drawCell(ctx, x, y, val.color || val, val.type);
+                    }
+                });
+            });
+
+            if (piece) {
+                piece.matrix.forEach((row, y) => {
+                    row.forEach((val, x) => {
+                        if (val !== 0) {
+                            drawCell(ctx, piece.x + x, piece.y + y, piece.color, piece.type);
+                        }
+                    });
+                });
+            }
+
+            drawNextPiece();
+        }
+
+        function drawNextPiece() {
+            nextCtx.fillStyle = '#020617';
+            nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+
+            if (!nextPiece) return;
+
+            const matrix = nextPiece.matrix;
+            const size = 22;
+            const offsetX = (nextCanvas.width - matrix[0].length * size) / 2;
+            const offsetY = (nextCanvas.height - matrix.length * size) / 2;
+
+            matrix.forEach((row, y) => {
+                row.forEach((val, x) => {
+                    if (val !== 0) {
+                        drawCell(nextCtx, (offsetX / size) + x, (offsetY / size) + y, nextPiece.color, nextPiece.type, size);
+                    }
+                });
+            });
+        }
+
+        function collide(board, piece, offset = {x: 0, y: 0}) {
+            const m = piece.matrix;
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0) {
+                        const newX = piece.x + x + offset.x;
+                        const newY = piece.y + y + offset.y;
+
+                        if (newX < 0 || newX >= COLS || newY >= ROWS) {
+                            return true;
+                        }
+                        if (board[newY] && board[newY][newX] !== 0) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function merge(board, piece) {
+            audio.land();
+            let specialTriggered = false;
+
+            piece.matrix.forEach((row, y) => {
+                row.forEach((val, x) => {
+                    if (val !== 0) {
+                        board[piece.y + y][piece.x + x] = {
+                            color: piece.color,
+                            type: piece.type
+                        };
+                    }
+                });
+            });
+
+            if (piece.type === 'BOMB') {
+                audio.bomb();
+                specialTriggered = true;
+                const centerY = piece.y;
+                const centerX = piece.x;
+                for (let r = centerY - 1; r <= centerY + 1; r++) {
+                    for (let c = centerX - 1; c <= centerX + 1; c++) {
+                        if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+                            board[r][c] = 0;
+                        }
+                    }
+                }
+            } else if (piece.type === 'LASER') {
+                audio.laserSound();
+                specialTriggered = true;
+                const centerY = piece.y;
+                const centerX = piece.x;
+                for (let c = 0; c < COLS; c++) board[centerY][c] = 0;
+                for (let r = 0; r < ROWS; r++) board[r][centerX] = 0;
+            } else if (piece.type === 'FREEZE') {
+                audio.freezeSound();
+                specialTriggered = true;
+                freezeTimer = 5000;
+            } else if (piece.type === 'WEIGHT') {
+                specialTriggered = true;
+                const centerY = piece.y;
+                const centerX = piece.x;
+                for (let r = centerY; r < ROWS; r++) {
+                    if (board[r][centerX]) board[r][centerX] = 0;
+                    if (board[r][centerX + 1] && centerX + 1 < COLS) board[r][centerX + 1] = 0;
+                }
+            }
+
+            // หากใช้บล็อกพิเศษช่วยเหลือพังบล็อกสำเร็จ ได้ +2 เหรียญ
+            if (specialTriggered) {
+                addCoins(2);
+            }
+        }
+
+        function dropPiece() {
+            if (!piece || isPaused) return;
+            if (!collide(board, piece, { x: 0, y: 1 })) {
+                piece.y += 1;
+            } else {
+                merge(board, piece);
+                clearLines();
+                spawnPiece();
+            }
+            dropCounter = 0;
+        }
+
+        function hardDrop() {
+            if (!piece || isPaused) return;
+            while (!collide(board, piece, { x: 0, y: 1 })) {
+                piece.y += 1;
+            }
+            merge(board, piece);
+            clearLines();
+            spawnPiece();
+            dropCounter = 0;
+        }
+
+        function movePiece(dir) {
+            if (!piece || isPaused) return;
+            if (!collide(board, piece, { x: dir, y: 0 })) {
+                piece.x += dir;
+                audio.move();
+            }
+        }
+
+        function rotatePiece() {
+            if (!piece || isPaused) return;
+            audio.rotate();
+            const matrix = piece.matrix;
+            const N = matrix.length;
+            const rotated = matrix.map((row, i) =>
+                row.map((val, j) => matrix[N - 1 - j][i])
+            );
+            
+            const pos = piece.x;
+            let offset = 1;
+            piece.matrix = rotated;
+            
+            while (collide(board, piece)) {
+                piece.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > matrix[0].length) {
+                    piece.matrix = matrix;
+                    piece.x = pos;
+                    return;
+                }
+            }
+        }
+
+        function togglePause() {
+            if (!isPlaying || gameOver) return;
+
+            isPaused = !isPaused;
+            if (isPaused) {
+                audio.stopBGM();
+                pauseIcon.className = 'fa-solid fa-play';
+                pauseText.innerText = 'เล่นต่อ';
+                overlayScreen.classList.remove('hidden');
+                pauseState.classList.remove('hidden');
+            } else {
+                audio.startBGM();
+                pauseIcon.className = 'fa-solid fa-pause';
+                pauseText.innerText = 'พักเกม';
+                overlayScreen.classList.add('hidden');
+                pauseState.classList.add('hidden');
+                lastTime = performance.now();
+                requestAnimationFrame(update);
+            }
+        }
+
+        btnPauseGame.addEventListener('click', togglePause);
+        btnResumeGame.addEventListener('click', togglePause);
+
+        function clearLines() {
+            let linesCleared = 0;
+            
+            for (let y = ROWS - 1; y >= 0; y--) {
+                if (board[y].every(cell => cell !== 0)) {
+                    board.splice(y, 1);
+                    board.unshift(Array(COLS).fill(0));
+                    linesCleared++;
+                    y++;
+                }
+            }
+
+            if (linesCleared > 0) {
+                if (linesCleared >= 3) {
+                    audio.victory();
+                } else {
+                    audio.clear();
+                }
+                
+                lines += linesCleared;
+                score += linesCleared * 120 * level;
+
+                // เมื่อพังบล็อกเต็มแถวปกติสำเร็จ ได้รับ +5 เหรียญต่อ 1 แถวที่เคลียร์
+                addCoins(linesCleared * 5);
+
+                // ทุกๆ 5 แถวที่เคลียร์ เลเวลจะเพิ่มขึ้น 1 เลเวล
+                level = Math.floor(lines / 5) + 1;
+
+                scoreDisplay.innerText = score;
+                levelDisplay.innerText = level;
+                linesDisplay.innerText = lines;
+            }
+        }
+
+        function spawnPiece() {
+            piece = nextPiece || getRandomPiece();
+            nextPiece = getRandomPiece();
+
+            piece.y = 0;
+            piece.x = Math.floor(COLS / 2) - Math.ceil(piece.matrix[0].length / 2);
+
+            if (collide(board, piece)) {
+                triggerGameOver();
+            }
+        }
+
+        btnSkillNuke.addEventListener('click', () => {
+            if (!isPlaying || isPaused || gameOver) return;
+            if (coins < 500) {
+                showToast('ต้องการเหรียญอย่างน้อย 500 เหรียญ!');
+                return;
+            }
+            coins -= 500;
+            coinDisplay.innerText = coins;
+            audio.bomb();
+
+            for (let r = ROWS - 3; r < ROWS; r++) {
+                board[r] = Array(COLS).fill(0);
+            }
+            showToast('💥 ใช้ระเบิดมิติล้าง 3 แถวล่างเรียบร้อย!');
+        });
+
+        function update(time = 0) {
+            if (!isPlaying || isPaused) return;
+
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            if (freezeTimer > 0) {
+                freezeTimer -= deltaTime;
+            }
+
+            const currentDropInterval = freezeTimer > 0 
+                ? 1200 
+                : Math.max(120, dropInterval - (level - 1) * 90);
+
+            dropCounter += deltaTime;
+            if (dropCounter > currentDropInterval) {
+                dropPiece();
+            }
+
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function startGame() {
+            board = createBoard();
+            score = 0;
+            lines = 0;
+            level = 1;
+            coins = 100; // เริ่มเกมใหม่ให้ 100 เหรียญ
+            coinDisplay.innerText = coins;
+            freezeTimer = 0;
+            gameOver = false;
+            isPlaying = true;
+            isPaused = false;
+
+            scoreDisplay.innerText = '0';
+            levelDisplay.innerText = '1';
+            linesDisplay.innerText = '0';
+
+            pauseIcon.className = 'fa-solid fa-pause';
+            pauseText.innerText = 'พักเกม';
+
+            overlayScreen.classList.add('hidden');
+            startState.classList.add('hidden');
+            pauseState.classList.add('hidden');
+            gameOverState.classList.add('hidden');
+
+            audio.startBGM();
+            spawnPiece();
+            lastTime = performance.now();
+            requestAnimationFrame(update);
+        }
+
+        function triggerGameOver() {
+            isPlaying = false;
+            gameOver = true;
+            audio.gameOver();
+
+            const pName = playerNameInput.value || "PlayerOne";
+            addScoreToLeaderboard(pName, score, lines);
+
+            document.getElementById('finalScore').innerText = score;
+            document.getElementById('finalLines').innerText = lines;
+
+            overlayScreen.classList.remove('hidden');
+            gameOverState.classList.remove('hidden');
+        }
+
+        // Keyboard Controls
+        document.addEventListener('keydown', event => {
+            if (event.key.toLowerCase() === 'p' || event.key === 'Escape') {
+                togglePause();
+                return;
+            }
+            if (!isPlaying || isPaused) return;
+
+            if (event.key === 'ArrowLeft') {
+                movePiece(-1);
+            } else if (event.key === 'ArrowRight') {
+                movePiece(1);
+            } else if (event.key === 'ArrowDown') {
+                dropPiece();
+            } else if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'z') {
+                rotatePiece();
+            } else if (event.key === ' ') {
+                event.preventDefault();
+                hardDrop();
+            }
+        });
+
+        document.getElementById('btnMobileLeft').addEventListener('click', () => movePiece(-1));
+        document.getElementById('btnMobileRight').addEventListener('click', () => movePiece(1));
+        document.getElementById('btnMobileRotate').addEventListener('click', () => rotatePiece());
+        document.getElementById('btnMobileDrop').addEventListener('click', () => hardDrop());
+
+        btnStartGame.addEventListener('click', startGame);
+        btnRestartGame.addEventListener('click', startGame);
+        btnQuickRestart.addEventListener('click', () => {
+            if (isPlaying && !gameOver) {
+                if (confirm('คุณต้องการเริ่มเกมใหม่ทันทีใช่หรือไม่?')) {
+                    startGame();
+                }
+            } else {
+                startGame();
+            }
+        });
+
+        // GDD Modal Tabs Logic
+        const modalGdd = document.getElementById('modalGdd');
+        const gddTabBtnConcept = document.getElementById('gddTabBtnConcept');
+        const gddTabBtnRules = document.getElementById('gddTabBtnRules');
+        const gddSectionConcept = document.getElementById('gddSectionConcept');
+        const gddSectionRules = document.getElementById('gddSectionRules');
+
+        document.getElementById('btnGddModal').addEventListener('click', () => modalGdd.classList.remove('hidden'));
+        document.getElementById('btnCloseGdd').addEventListener('click', () => modalGdd.classList.add('hidden'));
+        document.getElementById('btnCloseGdd2').addEventListener('click', () => modalGdd.classList.add('hidden'));
+
+        function resetGddTabs() {
+            gddTabBtnConcept.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+            gddTabBtnRules.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+            gddSectionConcept.classList.add('hidden');
+            gddSectionRules.classList.add('hidden');
+        }
+
+        gddTabBtnConcept.addEventListener('click', () => {
+            resetGddTabs();
+            gddTabBtnConcept.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-cyan-600 text-white transition";
+            gddSectionConcept.classList.remove('hidden');
+        });
+
+        gddTabBtnRules.addEventListener('click', () => {
+            resetGddTabs();
+            gddTabBtnRules.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-amber-600 text-white transition";
+            gddSectionRules.classList.remove('hidden');
+        });
+
+        // Feedback & Reviews System Logic
+        const DEFAULT_REVIEWS = [
+            { id: "rev_1", name: "GamerPro_99", rating: 5, likes: "เสียงบีทเรโทร fast-bpm ตื่นเต้นมาก บล็อกเลเซอร์ยิงล้างทั้งแถวสะใจสุดๆ!", improvements: "อยากให้มีด่านสเปเชียลเพิ่มอีก", deleted: false },
+            { id: "rev_2", name: "TetrisMaster_TH", rating: 5, likes: "ภาพบล็อก 3D นูนมีน้ำหนักสวยงามแน่นตา ลุ้นบล็อกแช่แข็งออกบ่อย เล่นติดเลย", improvements: "ปรับระดับความเร็วอีกนิดจะท้าทายมาก", deleted: false }
+        ];
+
+        let reviewsData = loadReviews();
+
+        function loadReviews() {
+            try {
+                const stored = localStorage.getItem('quantum_trash_reviews');
+                if (stored) return JSON.parse(stored);
+            } catch (e) {}
+            return DEFAULT_REVIEWS;
+        }
+
+        function saveReviews() {
+            try {
+                localStorage.setItem('quantum_trash_reviews', JSON.stringify(reviewsData));
+            } catch (e) {}
+        }
+
+        const modalFeedback = document.getElementById('modalFeedback');
+        const tabBtnForm = document.getElementById('tabBtnForm');
+        const tabBtnCommunity = document.getElementById('tabBtnCommunity');
+        const tabBtnTrash = document.getElementById('tabBtnTrash');
+        const feedbackForm = document.getElementById('feedbackForm');
+        const communityView = document.getElementById('communityView');
+        const trashView = document.getElementById('trashView');
+        const reviewsList = document.getElementById('reviewsList');
+        const trashList = document.getElementById('trashList');
+        const btnClearTrashAll = document.getElementById('btnClearTrashAll');
+
+        document.getElementById('btnFeedbackModal').addEventListener('click', () => {
+            modalFeedback.classList.remove('hidden');
+            renderReviews();
+        });
+        document.getElementById('btnCloseFeedback').addEventListener('click', () => modalFeedback.classList.add('hidden'));
+
+        function resetTabStyles() {
+            const inactiveClass = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+            tabBtnForm.className = inactiveClass;
+            tabBtnCommunity.className = inactiveClass;
+            tabBtnTrash.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-slate-800 text-red-400 hover:bg-slate-700 transition flex items-center gap-1";
+
+            feedbackForm.classList.add('hidden');
+            communityView.classList.add('hidden');
+            trashView.classList.add('hidden');
+        }
+
+        tabBtnForm.addEventListener('click', () => {
+            resetTabStyles();
+            tabBtnForm.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-pink-600 text-white transition";
+            feedbackForm.classList.remove('hidden');
+        });
+
+        tabBtnCommunity.addEventListener('click', () => {
+            resetTabStyles();
+            tabBtnCommunity.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-pink-600 text-white transition";
+            communityView.classList.remove('hidden');
+            renderReviews();
+        });
+
+        tabBtnTrash.addEventListener('click', () => {
+            resetTabStyles();
+            tabBtnTrash.className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-red-600 text-white transition flex items-center gap-1";
+            trashView.classList.remove('hidden');
+            renderReviews();
+        });
+
+        let selectedRating = 0;
+        const stars = document.querySelectorAll('#ratingStars i');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.getAttribute('data-rating'));
+                stars.forEach((s, idx) => {
+                    if (idx < selectedRating) {
+                        s.classList.remove('text-slate-600');
+                        s.classList.add('text-amber-400');
+                    } else {
+                        s.classList.remove('text-amber-400');
+                        s.classList.add('text-slate-600');
+                    }
+                });
+            });
+        });
+
+        feedbackForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('reviewerName').value;
+            const likes = document.getElementById('qLikes').value;
+            const improvements = document.getElementById('qImprovements').value;
+
+            if (selectedRating === 0) {
+                showToast('กรุณาคลิกเลือกดาวเพื่อประเมินความพึงพอใจด้วยครับ');
+                return;
+            }
+
+            reviewsData.unshift({
+                id: 'rev_' + Date.now(),
+                name: name || "Anonymous Player",
+                rating: selectedRating,
+                likes: likes,
+                improvements: improvements || "-",
+                deleted: false
+            });
+
+            saveReviews();
+            tabBtnCommunity.click();
+            feedbackForm.reset();
+            selectedRating = 0;
+            stars.forEach(s => {
+                s.classList.remove('text-amber-400');
+                s.classList.add('text-slate-600');
+            });
+            showToast('ขอบคุณสำหรับรีวิวของคุณครับ!');
+        });
+
+        window.softDeleteReview = function(id) {
+            const item = reviewsData.find(r => r.id === id);
+            if (item) {
+                item.deleted = true;
+                saveReviews();
+                renderReviews();
+                showToast('ย้ายรีวิวไปถังขยะเรียบร้อย');
+            }
+        };
+
+        window.restoreReview = function(id) {
+            const item = reviewsData.find(r => r.id === id);
+            if (item) {
+                item.deleted = false;
+                saveReviews();
+                renderReviews();
+                showToast('กู้คืนรีวิวกลับมาเรียบร้อย');
+            }
+        };
+
+        window.permanentDeleteReview = function(id) {
+            reviewsData = reviewsData.filter(r => r.id !== id);
+            saveReviews();
+            renderReviews();
+            showToast('ลบรีวิวถาวรเรียบร้อย');
+        };
+
+        btnClearTrashAll.addEventListener('click', () => {
+            const hasTrash = reviewsData.some(r => r.deleted);
+            if (!hasTrash) {
+                showToast('ถังขยะว่างเปล่าอยู่แล้ว');
+                return;
+            }
+            reviewsData = reviewsData.filter(r => !r.deleted);
+            saveReviews();
+            renderReviews();
+            showToast('ล้างถังขยะถาวรทั้งหมดแล้ว');
+        });
+
+        function renderReviews() {
+            reviewsList.innerHTML = '';
+            trashList.innerHTML = '';
+
+            const activeReviews = reviewsData.filter(r => !r.deleted);
+            const deletedReviews = reviewsData.filter(r => r.deleted);
+            let sumRating = 0;
+
+            activeReviews.forEach(rev => {
+                sumRating += rev.rating;
+                let starsHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= rev.rating) {
+                        starsHTML += `<i class="fa-solid fa-star text-amber-400"></i>`;
+                    } else {
+                        starsHTML += `<i class="fa-regular fa-star text-slate-600"></i>`;
+                    }
+                }
+
+                const card = document.createElement('div');
+                card.className = "p-3.5 rounded-xl bg-slate-950/7ff border border-slate-800 space-y-2 relative group";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-cyan-300 text-xs md:text-sm"><i class="fa-solid fa-user-astronaut mr-1.5"></i> ${rev.name}</span>
+                        <div class="flex items-center gap-2.5">
+                            <div class="text-xs space-x-0.5">${starsHTML}</div>
+                            <button onclick="softDeleteReview('${rev.id}')" class="text-slate-400 hover:text-red-400 p-1 transition" title="ย้ายไปถังขยะ">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-300"><b>ชอบ:</b> ${rev.likes}</p>
+                    ${rev.improvements !== '-' ? `<p class="text-xs text-slate-400"><b>เสนอแนะ:</b> ${rev.improvements}</p>` : ''}
+                `;
+                reviewsList.appendChild(card);
+            });
+
+            if (activeReviews.length === 0) {
+                reviewsList.innerHTML = `<div class="text-center py-6 text-xs text-slate-500">ไม่มีรีวิวที่แสดงในขณะนี้</div>`;
+            }
+
+            deletedReviews.forEach(rev => {
+                let starsHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= rev.rating) {
+                        starsHTML += `<i class="fa-solid fa-star text-amber-400"></i>`;
+                    } else {
+                        starsHTML += `<i class="fa-regular fa-star text-slate-600"></i>`;
+                    }
+                }
+
+                const card = document.createElement('div');
+                card.className = "p-3.5 rounded-xl bg-slate-950/5ff border border-red-900/30 space-y-2 relative opacity-85 hover:opacity-100 transition";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-400 text-xs md:text-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-slash text-red-400"></i> ${rev.name} <span class="text-[10px] text-red-400/85">(ในถังขยะ)</span>
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <div class="text-xs space-x-0.5">${starsHTML}</div>
+                            <button onclick="restoreReview('${rev.id}')" class="px-2.5 py-1 bg-emerald-700/85 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-left"></i> กู้คืน
+                            </button>
+                            <button onclick="permanentDeleteReview('${rev.id}')" class="px-2.5 py-1 bg-red-800/85 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition flex items-center gap-1" title="ลบถาวร">
+                                <i class="fa-solid fa-xmark"></i> ลบถาวร
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-400"><b>ชอบ:</b> ${rev.likes}</p>
+                    ${rev.improvements !== '-' ? `<p class="text-xs text-slate-500"><b>เสนอแนะ:</b> ${rev.improvements}</p>` : ''}
+                `;
+                trashList.appendChild(card);
+            });
+
+            if (deletedReviews.length === 0) {
+                trashList.innerHTML = `<div class="text-center py-6 text-xs text-slate-500">ไม่มีรายการในถังขยะ</div>`;
+            }
+
+            const avg = activeReviews.length > 0 ? (sumRating / activeReviews.length).toFixed(1) : "0.0";
+            document.getElementById('avgRatingNum').innerText = avg;
+            document.getElementById('totalReviewsCount').innerText = `${activeReviews.length} คน`;
+            document.getElementById('reviewCount').innerText = activeReviews.length;
+            document.getElementById('trashCount').innerText = deletedReviews.length;
+        }
+
+        draw();
+    </script>
+</body>
+</html>
